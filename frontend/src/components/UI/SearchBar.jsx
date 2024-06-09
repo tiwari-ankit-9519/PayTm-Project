@@ -1,10 +1,10 @@
 export default function SearchBar() {
   return (
-    <div className="mt-10 mx-10 shadow-xl">
+    <div className="mt-10 mx-10">
       <div>
         <h1 className="text-3xl font-semibold">Users</h1>
         <input
-          className="p-4 mt-4 border border-gray-800 foucs: outline-none w-full"
+          className="p-4 mt-4 border border-gray-200 foucs: outline-none w-full rounded shadow-xl"
           type="search"
           name=""
           id=""

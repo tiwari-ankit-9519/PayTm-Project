@@ -20,12 +20,9 @@ exports.registerUser = asyncHandler(async (req, res) => {
   });
 
   if (!result.success) {
-    const errorMessage = result.error.errors
-      .map((err) => err.message)
-      .join(",");
-    console.log(errorMessage);
+    const errorMessage = result.error.errors.map((err) => err.message);
     return res.status(400).json({
-      message: errorMessage || "Validation failed",
+      message: errorMessage[1] || "Validation failed",
     });
   }
 
