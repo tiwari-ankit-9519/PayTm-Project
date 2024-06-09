@@ -14,7 +14,7 @@ exports.transferBalance = asyncHandler(async (req, res) => {
   session.startTransaction();
   const { amount, to } = req.body;
   const account = await Account.findOne({
-    userId: req.userAuthId,
+    user: req.userAuthId,
   }).session(session);
 
   if (!account || account.balance < amount) {
@@ -25,7 +25,7 @@ exports.transferBalance = asyncHandler(async (req, res) => {
   }
 
   const toAccount = await Account.findOne({
-    userId: to,
+    user: to,
   });
 
   if (!toAccount) {
@@ -36,14 +36,13 @@ exports.transferBalance = asyncHandler(async (req, res) => {
   }
 
   await Account.updateOne(
-    { userId: req.userAuthId },
+    { user: req.userAuthId },
     { $inc: { balance: -amount } }
   ).session(session);
 
-  await Account.updateOne(
-    { userId: to },
-    { $inc: { balance: amount } }
-  ).session(session);
+  await Account.updateOne({ user: to }, { $inc: { balance: amount } }).session(
+    session
+  );
 
   await session.commitTransaction();
   res.json({
