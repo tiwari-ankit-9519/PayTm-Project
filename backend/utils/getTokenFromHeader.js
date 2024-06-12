@@ -1,10 +1,9 @@
 const getTokenFromHeader = (req) => {
-  const token = req?.headers?.authorization?.split(" ")[1];
-  if (token === undefined) {
-    return "No token found in the Header";
-  } else {
-    return token;
+  const authorizationHeader = req.headers.authorization;
+  if (authorizationHeader && authorizationHeader.startsWith("Bearer ")) {
+    return authorizationHeader.split(" ")[1];
   }
+  return null;
 };
 
 module.exports = getTokenFromHeader;

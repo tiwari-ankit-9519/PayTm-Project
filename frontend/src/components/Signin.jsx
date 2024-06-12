@@ -1,5 +1,6 @@
-import { useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+
+import { Link, useNavigate } from "react-router-dom";
 import Heading from "./UI/Heading";
 import Button from "./UI/Button";
 import axios from "axios";
@@ -8,6 +9,8 @@ import Modal from "./UI/Modal";
 export default function Signin() {
   const emailRef = useRef("");
   const passwordRef = useRef("");
+
+  const navigate = useNavigate();
 
   // eslint-disable-next-line no-unused-vars
   const [formData, setFormData] = useState({
@@ -18,8 +21,8 @@ export default function Signin() {
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [token, setToken] = useState(localStorage.getItem("token"));
 
-  console.log(formData);
   const handleSubmit = async (e) => {
     e.preventDefault();
     const loginUserData = {
@@ -27,10 +30,13 @@ export default function Signin() {
       password: passwordRef.current.value,
     };
     try {
-      await axios.post(
+      const response = await axios.post(
         "http://localhost:4000/api/v1/users/login",
         loginUserData
       );
+      const token = response.data.token;
+      localStorage.setItem("token", token);
+      setToken(token);
       setIsModalOpen(false);
     } catch (e) {
       setError(true);
@@ -38,6 +44,14 @@ export default function Signin() {
       setIsModalOpen(true);
     }
   };
+
+  useEffect(() => {
+    if (token) {
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 2000);
+    }
+  }, [token, navigate]);
 
   return (
     <div className="flex items-center justify-center">

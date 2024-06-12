@@ -1,8 +1,16 @@
-const getTokenFromHeader = require("../utils/getTokenFromHeader.js");
-const verifyToken = require("../utils/verifyToken.js");
+const getTokenFromHeader = require("../utils/getTokenFromHeader");
+const verifyToken = require("../utils/verifyToken");
 
 const isLoggedIn = (req, res, next) => {
   const token = getTokenFromHeader(req);
+
+  if (!token) {
+    console.log("No token provided");
+    return res.status(403).json({
+      message: "User not authenticated",
+    });
+  }
+
   const decodedUser = verifyToken(token);
 
   if (!decodedUser) {
@@ -10,7 +18,7 @@ const isLoggedIn = (req, res, next) => {
       message: "User not authenticated",
     });
   } else {
-    req.userAuthId = decodedUser?.id;
+    req.userAuthId = decodedUser.id;
     next();
   }
 };

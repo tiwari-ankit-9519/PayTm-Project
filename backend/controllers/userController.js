@@ -52,7 +52,7 @@ exports.registerUser = asyncHandler(async (req, res) => {
   res.status(201).json({
     status: "success",
     message: "User Created Successfully",
-    token: generateToken(user?._id),
+    token: generateToken(user._id),
   });
 });
 
@@ -143,29 +143,37 @@ exports.updateUserProfile = asyncHandler(async (req, res) => {
 });
 
 exports.getUsers = asyncHandler(async (req, res) => {
-  const filter = req.query.filter || "";
+  try {
+    const filter = req.query.filter || "";
+    const loggedInUserId = req.userAuthId;
 
-  const users = await User.find({
-    $or: [
-      {
-        firstName: {
-          $regex: filter,
+    const users = await User.find({
+      _id: { $ne: loggedInUserId },
+      $or: [
+        {
+          firstName: {
+            $regex: filter,
+            $options: "i",
+          },
         },
-      },
-      {
-        lastName: {
-          $regex: filter,
+        {
+          lastName: {
+            $regex: filter,
+            $options: "i",
+          },
         },
-      },
-    ],
-  });
+      ],
+    });
 
-  res.json({
-    user: users.map((user) => ({
-      username: user.username,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      _id: user._id,
-    })),
-  });
+    res.status(200).json({
+      users: users.map((user) => ({
+        username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        _id: user._id,
+      })),
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Internal Server Error", error });
+  }
 });

@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Heading from "./UI/Heading";
 import Button from "./UI/Button";
 import Modal from "./UI/Modal";
@@ -11,6 +11,8 @@ export default function Signup() {
   const lastNameRef = useRef("");
   const emailRef = useRef("");
   const passwordRef = useRef("");
+
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -22,6 +24,7 @@ export default function Signup() {
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [token, setToken] = useState(localStorage.getItem("token"));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,10 +36,13 @@ export default function Signup() {
     };
     setFormData(updatedFormData);
     try {
-      await axios.post(
+      const response = await axios.post(
         "http://localhost:4000/api/v1/users/signup",
         updatedFormData
       );
+      const token = response.data.token;
+      localStorage.setItem("token", token);
+      setToken(token);
       setIsModalOpen(false);
     } catch (e) {
       setError(true);
@@ -44,6 +50,14 @@ export default function Signup() {
       setErrorMessage(e.response.data.message);
     }
   };
+
+  useEffect(() => {
+    if (token) {
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 2000);
+    }
+  }, [navigate, token]);
 
   return (
     <div className="flex items-center justify-center">
